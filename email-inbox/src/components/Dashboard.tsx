@@ -10,6 +10,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard: React.FC = () => {
   const [faqData, setFaqData] = useState<{ faq: string; freq: number; coverage_percentage: number; coverageDescription: string }[]>([]);
+  const [stagingFaqData, setStagingFaqData] = useState<{ faq: string; coverage_percentage: number}[]>([]);
   const [faqPageNumber, setFaqPageNumber] = useState(0);
   const [visibleDescriptionIndex, setVisibleDescriptionIndex] = useState<number | null>(null);
   
@@ -26,10 +27,21 @@ const Dashboard: React.FC = () => {
       }
     };
 
+    const fetchStagingFaqData = async () => {
+    try {
+        const response = await fetch('http://localhost:5000/staging_faq');
+        const data = await response.json();
+        setStagingFaqData(data);
+      } catch (error) {
+        console.error('Error fetching FAQs:', error);
+      }
+  };
+
+
     fetchFaqData();
+    fetchStagingFaqData();
   }, []);
 
-  // Categorize the data based on coverage_percentage
   const categories = { 
     'Fully Covered': 0, 
     'Majorly Covered': 0, 
@@ -37,17 +49,18 @@ const Dashboard: React.FC = () => {
     'Not Covered': 0 
   };
 
-  faqData.forEach(faq => {
-    if (faq.coverage_percentage === 100) {
-      categories['Fully Covered'] += faq.freq;
-    } else if (faq.coverage_percentage >= 80) {
-      categories['Majorly Covered'] += faq.freq;
-    } else if (faq.coverage_percentage >= 40) {
-      categories['Partially Covered'] += faq.freq;
-    } else {
-      categories['Not Covered'] += faq.freq;
-    }
-  });
+    const coverageCounts : { [percent: number]: number } = {};
+    stagingFaqData.forEach(stagingFaq => {
+        if (stagingFaq.coverage_percentage === 100)
+          categories['Fully Covered'] += 1;
+        else if (stagingFaq.coverage_percentage > 80)
+          categories['Majorly Covered'] += 1;
+        else if (stagingFaq.coverage_percentage > 40)
+          categories['Partially Covered'] += 1;
+        else
+        categories['Not Covered'] += 1;
+    })
+
 
   const pieData = {
     labels: Object.keys(categories),
@@ -56,8 +69,8 @@ const Dashboard: React.FC = () => {
       data: Object.values(categories),
       backgroundColor: [
         '#4CAF50', // Green for Fully Covered
-        '#FF9800', // Amber for Majorly Covered
         '#2196F3', // Blue for Partially Covered
+        '#FF9800', // Amber for Majorly Covered
         '#F44336', // Red for Not Covered
       ],
       hoverOffset: 2

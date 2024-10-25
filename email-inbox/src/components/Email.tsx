@@ -38,8 +38,10 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
   const getCoverageStyle = (coverage: number) => {
     if (coverage >= 0 && coverage <= 25) {
       return 'text-red-500';
-    } else if (coverage > 25 && coverage <= 100) {
-      return 'text-green-500';
+    } else if (coverage > 25 && coverage < 75) {
+      return 'text-yellow-500';
+    } else if (coverage > 75 && coverage <= 100){
+        return 'text-green-500'
     }
     return 'hidden';
   };
