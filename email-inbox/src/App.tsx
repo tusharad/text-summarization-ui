@@ -154,7 +154,7 @@ const App: React.FC = () => {
           </div>
         ) : (
           <MainThread
-            thread={emailThreads[currentThreadIndex]}
+            thread={emailThreads.length > currentThreadIndex ? emailThreads[currentThreadIndex] : null}
             onSummarize={openModal}
             onGetSop={getSopBasedEmailResponse}
             onToggleEmail={toggleEmailOpen}

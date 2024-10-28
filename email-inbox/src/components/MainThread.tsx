@@ -3,7 +3,7 @@ import { Thread } from '../types';
 import Email from './Email.tsx';
 
 interface MainThreadProps {
-  thread: Thread;
+  thread: Thread | null;
   onSummarize: (thread_id: number) => void;
   onGetSop: (thread_id: number) => void;
   onToggleEmail: (threadIndex: number, emailIndex: number) => void;
@@ -13,6 +13,8 @@ interface MainThreadProps {
 
 const MainThread: React.FC<MainThreadProps> = ({ thread, onSummarize, onToggleEmail,currentThreadIndex, onReply, onGetSop }) => {
   return (
+    thread ?
+    (<>
     <div className="w-full px-3 py-2 mx-auto">
       <div className="flex flex-wrap -mx-3">
         <div className="w-full max-w-full mb-6">
@@ -56,6 +58,7 @@ const MainThread: React.FC<MainThreadProps> = ({ thread, onSummarize, onToggleEm
         </div>
       </div>
     </div>
+    </>) : (<div className="w-full px-3 py-2 mx-auto">No threads found :(</div>)
   );
 };
 
