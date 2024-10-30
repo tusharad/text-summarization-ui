@@ -10,10 +10,12 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Dashboard: React.FC = () => {
   const [faqData, setFaqData] = useState<{ faq: string; freq: number; coverage_percentage: number; coverageDescription: string }[]>([]);
-  const [stagingFaqData, setStagingFaqData] = useState<{ faq: string; coverage_percentage: number}[]>([]);
+  const [stagingFaqData, setStagingFaqData] = useState<{ faq: string; coverage_percentage: number }[]>([]);
   const [faqPageNumber, setFaqPageNumber] = useState(0);
   const [visibleDescriptionIndex, setVisibleDescriptionIndex] = useState<number | null>(null);
-  
+  const [autoSend, setAutoSend] = useState<boolean>(false);
+  const [threshold, setThreshold] = useState<number | null>(null);
+
   const itemsPerPage = 5;
 
   useEffect(() => {
@@ -28,39 +30,32 @@ const Dashboard: React.FC = () => {
     };
 
     const fetchStagingFaqData = async () => {
-    try {
+      try {
         const response = await fetch('http://localhost:5000/staging_faq');
         const data = await response.json();
         setStagingFaqData(data);
       } catch (error) {
         console.error('Error fetching FAQs:', error);
       }
-  };
-
+    };
 
     fetchFaqData();
     fetchStagingFaqData();
   }, []);
 
-  const categories = { 
-    'Fully Covered': 0, 
-    'Majorly Covered': 0, 
-    'Partially Covered': 0, 
-    'Not Covered': 0 
+  const categories = {
+    'Fully Covered': 0,
+    'Majorly Covered': 0,
+    'Partially Covered': 0,
+    'Not Covered': 0,
   };
 
-    const coverageCounts : { [percent: number]: number } = {};
-    stagingFaqData.forEach(stagingFaq => {
-        if (stagingFaq.coverage_percentage === 100)
-          categories['Fully Covered'] += 1;
-        else if (stagingFaq.coverage_percentage > 80)
-          categories['Majorly Covered'] += 1;
-        else if (stagingFaq.coverage_percentage > 40)
-          categories['Partially Covered'] += 1;
-        else
-        categories['Not Covered'] += 1;
-    })
-
+  stagingFaqData.forEach(stagingFaq => {
+    if (stagingFaq.coverage_percentage === 100) categories['Fully Covered'] += 1;
+    else if (stagingFaq.coverage_percentage > 80) categories['Majorly Covered'] += 1;
+    else if (stagingFaq.coverage_percentage > 40) categories['Partially Covered'] += 1;
+    else categories['Not Covered'] += 1;
+  });
 
   const pieData = {
     labels: Object.keys(categories),
@@ -73,8 +68,8 @@ const Dashboard: React.FC = () => {
         '#FF9800', // Amber for Majorly Covered
         '#F44336', // Red for Not Covered
       ],
-      hoverOffset: 2
-    }]
+      hoverOffset: 2,
+    }],
   };
 
   const displayFaqs = faqData.slice(faqPageNumber * itemsPerPage, (faqPageNumber + 1) * itemsPerPage);
@@ -97,6 +92,33 @@ const Dashboard: React.FC = () => {
       </header>
       <div className="flex flex-col md:flex-row gap-6">
         <div className="flex-auto md:w-1/2">
+          <div className="bg-gray-100 p-4 rounded-lg mb-6 shadow">
+            <h3 className="text-lg font-bold mb-2">Auto-send Settings</h3>
+            <label className="flex items-center space-x-2 mb-4">
+              <input
+                type="checkbox"
+                checked={autoSend}
+                onChange={(e) => setAutoSend(e.target.checked)}
+                className="form-checkbox"
+              />
+              <span>Auto-send if coverage is good</span>
+            </label>
+            <div>
+              <label className='text-gray-500'>
+                Set threshold % for auto-send sop email:
+                <input
+                  type="number"
+                  value={threshold ?? ''}
+                  onChange={(e) => setThreshold(Number(e.target.value))}
+                  className="ml-4 p-1 border border-gray-400 rounded"
+                  disabled={!autoSend}
+                  min="0"
+                  max="100"
+                  placeholder="Set threshold"
+                />
+              </label>
+            </div>
+          </div>
           <h2 className="text-lg font-bold mb-2">Frequently Asked Questions</h2>
           <table className="w-full mb-4 border-collapse border border-gray-300">
             <thead>
@@ -144,15 +166,15 @@ const Dashboard: React.FC = () => {
         </div>
         <div className="flex-auto md:w-1/3">
           <h2 className="text-2xl font-bold mb-2">SOP Coverage vs Customer Queries</h2>
-                    <div className="w-full">
+          <div className="w-full">
             <Pie data={pieData} />
           </div>
           <div className="mb-4">
             <ul className="list-disc ml-6">
-              <li><span className="" style={{ color: '#4CAF50' }}>Fully Covered</span>: 100%</li>
-              <li><span className="" style={{ color: '#FF9800' }}>Majorly Covered</span>: 80% and above</li>
-              <li><span className="" style={{ color: '#2196F3' }}>Partially Covered</span>: 40% to less than 80%</li>
-              <li><span className="" style={{ color: '#F44336' }}>Not Covered</span>: Less than 40%</li>
+              <li><span style={{ color: '#4CAF50' }}>Fully Covered</span>: 100%</li>
+              <li><span style={{ color: '#2196F3' }}>Majorly Covered</span>: 80% and above</li>
+              <li><span style={{ color: '#FF9800' }}>Partially Covered</span>: 40% to less than 80%</li>
+              <li><span style={{ color: '#F44336' }}>Not Covered</span>: Less than 40%</li>
             </ul>
           </div>
         </div>

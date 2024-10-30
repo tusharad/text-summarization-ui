@@ -66,8 +66,16 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
       </div>
       {email.isOpen ? (
         emailIsResolved ? (
+            <>
           <pre onClick={onToggle} className="text-gray-900 bg-gray-200 mt-4 px-2 py-2 pre-wrap">{email.content}</pre>
-        ) : (
+          <p className="text-gray-900 bg-gray-200 mt-4 px-2 py-2 pre-wrap">{email.coveragePercentage}</p>
+          </>
+        ) : (email.coveragePercentage && email.coveragePercentage > 85) ? (
+              <>
+          <pre onClick={onToggle} className="text-gray-900 bg-gray-200 mt-4 px-2 py-2 pre-wrap">{email.content}</pre>
+          <p className="text-gray-900 bg-gray-200 mt-4 px-2 py-2 pre-wrap">{email.coveragePercentage}</p>
+          </>
+        ) :(
           <div>
             <textarea
               className="w-full text-gray-800 border border-gray-700 rounded-md p-2 mt-4"
