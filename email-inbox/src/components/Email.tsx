@@ -8,14 +8,16 @@ interface EmailProps {
   threadId: number;
   indexKey: number;
   email: EmailType;
+  autoSend: boolean;
+  threshold: number | null;
   onToggle: () => void;
   onReply: (senderEmail: string, threadId: number) => void;
 }
 
-const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onReply }) => {
+const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onReply, threshold, autoSend }) => {
   const [emailContent, setEmailContent] = useState(email.content);
   const [emailIsResolved, setEmailIsResolved] = useState(email.isResolved);
-    const [toggleCoverageDescription, setToggleDescription] = useState<boolen | null>(true);
+  const [toggleCoverageDescription, setToggleDescription] = useState<boolean | null>(true);
 
   const handleReplyClick = () => {
     onReply(email.senderEmail, threadId);
@@ -40,15 +42,15 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
       return 'text-red-500';
     } else if (coverage > 25 && coverage < 75) {
       return 'text-yellow-500';
-    } else if (coverage > 75 && coverage <= 100){
-        return 'text-green-500'
+    } else if (coverage > 75 && coverage <= 100) {
+      return 'text-green-500'
     }
     return 'hidden';
   };
 
   const coverageStyle = getCoverageStyle(email.coveragePercentage);
 
- return (
+  return (
     <div className="p-6 border-b bg-white hover:bg-gray-50 transition">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center cursor-pointer" onClick={onToggle}>
@@ -66,16 +68,19 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
       </div>
       {email.isOpen ? (
         emailIsResolved ? (
-            <>
-          <pre onClick={onToggle} className="text-gray-900 bg-gray-200 mt-4 px-2 py-2 pre-wrap">{email.content}</pre>
-          <p className="text-gray-900 bg-gray-200 mt-4 px-2 py-2 pre-wrap">{email.coveragePercentage}</p>
+          <>
+            <pre onClick={onToggle} className="text-gray-900 bg-gray-200 mt-4 px-2 py-2 pre-wrap">{email.content}</pre>
           </>
-        ) : (email.coveragePercentage && email.coveragePercentage > 85) ? (
-              <>
-          <pre onClick={onToggle} className="text-gray-900 bg-gray-200 mt-4 px-2 py-2 pre-wrap">{email.content}</pre>
-          <p className="text-gray-900 bg-gray-200 mt-4 px-2 py-2 pre-wrap">{email.coveragePercentage}</p>
+        ) : (email.coveragePercentage && threshold && email.coveragePercentage >= threshold) ? (
+          <>
+            <pre onClick={onToggle} className="text-gray-900 bg-gray-200 mt-4 px-2 py-2 pre-wrap">{email.content}</pre>
+            <div className='pt-4'>
+                <span className={`ml-4 font-semibold ${coverageStyle}`}>
+                  Mail has been auto-sent with coverage: {email.coveragePercentage}%
+                </span>
+            </div>
           </>
-        ) :(
+        ) : (
           <div>
             <textarea
               className="w-full text-gray-800 border border-gray-700 rounded-md p-2 mt-4"
@@ -95,25 +100,25 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
               Send
             </button>
             {email.coveragePercentage >= 0 && email.coveragePercentage <= 100 && (
-            <>
+              <>
                 <span className={`ml-4 font-semibold ${coverageStyle}`}>
                   Coverage: {email.coveragePercentage}%
                 </span>
 
                 <button
-                                            onClick={() => setToggleDescription(!toggleCoverageDescription)}
-                                            className="ml-2 text-gray-500 hover:text-yellow-500 cursor-pointer"
-                                        >
-                                            <FontAwesomeIcon icon={faQuestionCircle} />
-                                        </button>
-                                        {(toggleCoverageDescription ? null : ( 
-                                            <div className="text-sm text-gray-700 mt-1">
-                                                {email.coverageDescription}
-                                            </div>)
-                                        )}
+                  onClick={() => setToggleDescription(!toggleCoverageDescription)}
+                  className="ml-2 text-gray-500 hover:text-yellow-500 cursor-pointer"
+                >
+                  <FontAwesomeIcon icon={faQuestionCircle} />
+                </button>
+                {(toggleCoverageDescription ? null : (
+                  <div className="text-sm text-gray-700 mt-1">
+                    {email.coverageDescription}
+                  </div>)
+                )}
 
-                </>
-              )}
+              </>
+            )}
           </div>
         )
       ) : (

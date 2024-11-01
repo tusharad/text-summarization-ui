@@ -13,8 +13,6 @@ const Dashboard: React.FC = () => {
   const [stagingFaqData, setStagingFaqData] = useState<{ faq: string; coverage_percentage: number }[]>([]);
   const [faqPageNumber, setFaqPageNumber] = useState(0);
   const [visibleDescriptionIndex, setVisibleDescriptionIndex] = useState<number | null>(null);
-  const [autoSend, setAutoSend] = useState<boolean>(false);
-  const [threshold, setThreshold] = useState<number | null>(null);
 
   const itemsPerPage = 5;
 
@@ -92,33 +90,6 @@ const Dashboard: React.FC = () => {
       </header>
       <div className="flex flex-col md:flex-row gap-6">
         <div className="flex-auto md:w-1/2">
-          <div className="bg-gray-100 p-4 rounded-lg mb-6 shadow">
-            <h3 className="text-lg font-bold mb-2">Auto-send Settings</h3>
-            <label className="flex items-center space-x-2 mb-4">
-              <input
-                type="checkbox"
-                checked={autoSend}
-                onChange={(e) => setAutoSend(e.target.checked)}
-                className="form-checkbox"
-              />
-              <span>Auto-send if coverage is good</span>
-            </label>
-            <div>
-              <label className='text-gray-500'>
-                Set threshold % for auto-send sop email:
-                <input
-                  type="number"
-                  value={threshold ?? ''}
-                  onChange={(e) => setThreshold(Number(e.target.value))}
-                  className="ml-4 p-1 border border-gray-400 rounded"
-                  disabled={!autoSend}
-                  min="0"
-                  max="100"
-                  placeholder="Set threshold"
-                />
-              </label>
-            </div>
-          </div>
           <h2 className="text-lg font-bold mb-2">Frequently Asked Questions</h2>
           <table className="w-full mb-4 border-collapse border border-gray-300">
             <thead>
