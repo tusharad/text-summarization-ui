@@ -78,6 +78,18 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
                 <span className={`ml-4 font-semibold ${coverageStyle}`}>
                   Mail has been auto-sent with coverage: {email.coveragePercentage}%
                 </span>
+                 <button
+                  onClick={() => setToggleDescription(!toggleCoverageDescription)}
+                  className="ml-2 text-gray-500 hover:text-yellow-500 cursor-pointer"
+                >
+                  <FontAwesomeIcon icon={faQuestionCircle} />
+                </button>
+                {(toggleCoverageDescription ? null : (
+                  <div className="text-sm text-gray-700 mt-1">
+                    {email.coverageDescription}
+                  </div>)
+                )}
+
             </div>
           </>
         ) : (

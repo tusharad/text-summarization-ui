@@ -71,12 +71,12 @@ const App: React.FC = () => {
     setReplyEmailData(null);
   };
 
-  const openModal = async (threadId: number) => {
+  const openModal = async (threadId: number, option ?: string) => {
     setIsModalOpen(true);
     setSummary(''); // Clear previous summary
 
     try {
-      const response = await fetch(`http://localhost:5000/summarize/${threadId}`, {
+      const response = await fetch(`http://localhost:5000/summarize/${threadId}?option=${option}`, {
         method: 'POST',
       });
 
