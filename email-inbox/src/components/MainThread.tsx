@@ -4,6 +4,7 @@ import Email from './Email.tsx';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faGear, faChevronDown} from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
+import AutoSendDropdown from './AutoSendDropdown.tsx';
 
 interface MainThreadProps {
     thread: Thread | null;
@@ -50,23 +51,24 @@ const MainThread: React.FC<MainThreadProps> = ({thread, onSummarize, onToggleEma
                         <div className="w-full max-w-full mb-6">
                             <div className="relative flex flex-col min-w-0 break-words bg-gray-200 rounded-2xl bg-clip-border">
                                 <div className="h-full overflow-y-auto" id="main-thread">
-                                    <div className="absolute top-12 right-20 flex">
+                                    <div className="absolute top-12 right-24 flex">
                                         <button
-                                            className="bg-gray-100 text-red-500 px-2 font-bold py-2 shadow hover:from-red-800 hover:bg-gray-300"
+                                            className="bg-gray-100 text-red-500 px-2 font-bold py-2 rounded-s-lg shadow hover:from-red-800 hover:bg-gray-300"
                                             onClick={() => onSummarize(thread.threadId)}
                                         >
                                             Summarize
                                         </button>
                                     </div>
-                                    <div className="absolute top-12 right-12 flex space-x-2">
+                                    <div className="absolute top-12 right-16 flex space-x-2">
                                         <button
-                                            className="bg-gray-100 text-red-500 px-2 font-bold py-2 shadow hover:from-red-800 hover:bg-gray-300"
+                                            className="bg-gray-100 text-red-500 px-2 font-bold py-2 rounded-e-lg shadow hover:from-red-800 hover:bg-gray-300"
                                             onClick={() => setSummarizeDropdownOpen(!isSummarizeDropdownOpen)}
                                         >
                                             <FontAwesomeIcon icon={faChevronDown} />
                                         </button>
                                         <div className={`absolute right-0 mt-11 w-60 bg-white border border-red-500 border-b-2 shadow-lg 
-                                                   z-10 transition-all duration-300 ease-in-out transform ${isSummarizeDropdownOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
+                                                   z-10 transition-all duration-300 ease-in-out transform 
+                                                   ${isSummarizeDropdownOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
                                             }`}
                                         >
                                             <ul>
@@ -85,57 +87,22 @@ const MainThread: React.FC<MainThreadProps> = ({thread, onSummarize, onToggleEma
                                             </ul>
                                         </div>
                                     </div>
-                                    <div className="absolute top-12 right-72 mr-5 flex space-x-2 px-2">
+                                    <div className="absolute top-12 right-52">
                                         <button
-                                            className="bg-gray-100 text-red-500 px-4 font-bold py-2 shadow hover:from-red-800 hover:bg-gray-300"
-                                            onClick={() => setDropdownOpen(!isDropdownOpen)}
-                                        >
-                                            <FontAwesomeIcon icon={faGear} />
-                                        </button>
-                                        <div
-                                            className={`absolute right-0 mt-11 w-60 bg-white border border-gray-300 rounded-lg shadow-lg z-10 transition-all duration-300 ease-in-out transform ${isDropdownOpen ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2 pointer-events-none'
-                                                }`}
-                                        >
-                                            <div className="p-4">
-                                                <label className="flex items-center space-x-4">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={autoSend}
-                                                        onChange={(e) => setAutoSend(e.target.checked)}
-                                                        className="form-checkbox"
-                                                    />
-                                                    <span>Auto-send for SOP</span>
-                                                </label>
-                                                <div className="mt-2">
-                                                    <label className={(autoSend) ? 'text-gray-900' : 'text-gray-500'}>
-                                                        Set threshold
-                                                        <input
-                                                            type="number"
-                                                            value={threshold ?? ''}
-                                                            onChange={(e) => setThreshold(Number(e.target.value))}
-                                                            className="ml-2 p-1 border border-gray-900 rounded"
-                                                            disabled={!autoSend}
-                                                            min="0"
-                                                            max="100"
-                                                            placeholder="%"
-                                                        />
-                                                    </label>
-                                                    <button className='bg-gray-100 text-red-500 px-4 font-bold py-2 rounded-lg shadow hover:from-red-800 hover:bg-gray-300'
-                                                        onClick={() => {handleSetAutoSend(); setDropdownOpen(!isDropdownOpen)}}
-                                                    >
-                                                        save
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="absolute top-12 right-48">
-                                        <button
-                                            className="bg-gray-100 text-red-500 px-2 font-bold py-2 shadow hover:from-red-800 hover:bg-gray-300"
+                                            className="bg-gray-100 text-red-500 px-2 font-bold py-2 rounded-lg shadow hover:from-red-800 hover:bg-gray-300"
                                             onClick={() => onGetSop(thread.threadId)}
                                         >
                                             Smart Reply
                                         </button>
+                                    </div>
+                                    <div className="absolute top-8 right-72 mr-5 flex space-x-2 px-2">
+                                        <AutoSendDropdown 
+                                            autoSend={autoSend}
+                                            threshold={threshold}
+                                            setAutoSend={setAutoSend}
+                                            setThreshold={setThreshold}
+                                            handleSetAutoSend={handleSetAutoSend}
+                                        />
                                     </div>
                                     <div className="p-6 bg-gray-200">
                                         <div className="p-6 border-b bg-red-600 text-white rounded-t-lg">
