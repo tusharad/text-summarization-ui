@@ -1,6 +1,6 @@
 import { faGear } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 
 interface AutoSendDropdownProps {
@@ -51,7 +51,7 @@ const AutoSendDropdown: React.FC<AutoSendDropdownProps> = ({
                         </label>
                         <input
                             type="number"
-                            value={threshold ?? ''}
+                            value={(threshold && threshold !== 101) ? threshold : ''}
                             onChange={(e) => setThreshold(Number(e.target.value))}
                             className={`w-full mt-2 p-2 border rounded-lg focus:outline-none focus:ring ${autoSend ? 'border-gray-400'
                                 : 'border-gray-300 bg-gray-100 cursor-not-allowed'}`}

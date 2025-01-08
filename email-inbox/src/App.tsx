@@ -109,9 +109,7 @@ const App: React.FC = () => {
         },
         body: JSON.stringify({ "thread_id" : threadId, "doc_id" : 1 })
         });
-
         setSmarReplyShowNotification(true);
-
     } catch (err) {
     console.log("Error during, store_thread_and_document api",err)
     }
