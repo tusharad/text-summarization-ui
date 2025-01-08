@@ -9,6 +9,7 @@ export interface Email {
     emailRecordId: number;
     coveragePercentage: number;
     coverageDescription: string;
+    imagePath: string;
   }
   
   export interface Thread {

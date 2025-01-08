@@ -20,17 +20,40 @@ const ComposeEmailModal: React.FC<ComposeEmailModalProps> = ({
   const [subject, setSubject] = useState(isReply ? 'Re: ' : '');
   const [content, setContent] = useState('');
   const [isMaximized, setIsMaximized] = useState(true);
-
+  const [image, setImage] = useState<File | null>(null);
+  
   const handleSend = async () => {
+    if (image) {
+      const validTypes = ['image/png', 'image/jpeg'];
+      if (!validTypes.includes(image.type)) {
+        alert('Image type must be PNG or JPEG.');
+        return;
+      }
+      if (image.size > 500 * 1024) {
+        alert('Image size must be less than 500KB.');
+        return;
+      }
+    }
+
     try {
       const url = isReply
         ? `http://localhost:5000/create/email/${threadId}`
         : 'http://localhost:5000/create/email';
-      await axios.post(url, {
-        senderEmail,
-        subject,
-        content,
+      
+      const formData = new FormData();
+      formData.append('senderEmail', senderEmail || '');
+      formData.append('subject', subject);
+      formData.append('content', content);
+      if (image) {
+        formData.append('image', image);
+      }
+
+      await axios.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
+
       alert(isReply ? 'Reply sent successfully!' : 'Email sent successfully!');
       onEmailSent();
       onClose();
@@ -67,7 +90,6 @@ const ComposeEmailModal: React.FC<ComposeEmailModalProps> = ({
             </button>
           </div>
         </div>
-
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">From</label>
           <input
@@ -96,6 +118,21 @@ const ComposeEmailModal: React.FC<ComposeEmailModalProps> = ({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={15}
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">Attach Image (PNG, JPEG only, max 500KB)</label>
+          <input
+            type="file"
+            accept="image/png, image/jpeg"
+            className="mt-1 block w-full"
+            onChange={(e) => {
+              if (e.target.files && e.target.files[0]) {
+                setImage(e.target.files[0]);
+              } else {
+                setImage(null);
+              }
+            }}
           />
         </div>
         <div className="flex justify-end">

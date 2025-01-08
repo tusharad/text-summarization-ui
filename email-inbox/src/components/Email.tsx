@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Email as EmailType } from '../types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faReply, faStar, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import { faReply, faStar, faQuestionCircle, faPaperclip } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 
 interface EmailProps {
@@ -30,10 +30,27 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
       });
       alert('Email updated successfully!');
       setEmailIsResolved(true);
-      // Handle response or update state as necessary
     } catch (error) {
       console.error('Error updating email:', error);
       alert('Failed to update email.');
+    }
+  };
+
+  const handleDownloadImage = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/download_img/${email.emailRecordId}`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', email.imagePath || 'downloaded_image');
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading image:', error);
+      alert('Failed to download image.');
     }
   };
 
@@ -43,7 +60,7 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
     } else if (coverage > 25 && coverage < 75) {
       return 'text-yellow-500';
     } else if (coverage > 75 && coverage <= 100) {
-      return 'text-green-500'
+      return 'text-green-500';
     }
     return 'hidden';
   };
@@ -75,21 +92,20 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
           <>
             <pre onClick={onToggle} className="text-gray-900 bg-gray-200 mt-4 px-2 py-2 pre-wrap">{email.content}</pre>
             <div className='pt-4'>
-                <span className={`ml-4 font-semibold ${coverageStyle}`}>
-                  Mail has been auto-sent with coverage: {email.coveragePercentage}%
-                </span>
-                 <button
-                  onClick={() => setToggleDescription(!toggleCoverageDescription)}
-                  className="ml-2 text-gray-500 hover:text-yellow-500 cursor-pointer"
-                >
-                  <FontAwesomeIcon icon={faQuestionCircle} />
-                </button>
-                {(toggleCoverageDescription ? null : (
-                  <div className="text-sm text-gray-700 mt-1">
-                    {email.coverageDescription}
-                  </div>)
-                )}
-
+              <span className={`ml-4 font-semibold ${coverageStyle}`}>
+                Mail has been auto-sent with coverage: {email.coveragePercentage}%
+              </span>
+              <button
+                onClick={() => setToggleDescription(!toggleCoverageDescription)}
+                className="ml-2 text-gray-500 hover:text-yellow-500 cursor-pointer"
+              >
+                <FontAwesomeIcon icon={faQuestionCircle} />
+              </button>
+              {(toggleCoverageDescription ? null : (
+                <div className="text-sm text-gray-700 mt-1">
+                  {email.coverageDescription}
+                </div>)
+              )}
             </div>
           </>
         ) : (
@@ -98,7 +114,7 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
               className="w-full text-gray-800 border border-gray-700 rounded-md p-2 mt-4"
               value={emailContent}
               onChange={(e) => setEmailContent(e.target.value)}
-              rows={25} // Increased number of rows
+              rows={25}
             />
             <button
               className="bg-red-500 text-white px-4 py-2 mr-2 rounded-lg shadow hover:bg-red-600 mt-2"
@@ -128,7 +144,6 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
                     {email.coverageDescription}
                   </div>)
                 )}
-
               </>
             )}
           </div>
@@ -137,7 +152,16 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
         <div onClick={onToggle} className="text-gray-500 truncate">{email.content.substring(0, 100)}...</div>
       )}
       <div className="flex justify-between mt-4">
-        <span></span>
+        <div>
+          {email.imagePath && (
+            <FontAwesomeIcon
+              icon={faPaperclip}
+              className="text-gray-500 hover:text-blue-500 cursor-pointer"
+              onClick={handleDownloadImage}
+              title="Download attachment"
+            />
+          )}
+        </div>
         <div className="flex space-x-4">
           <FontAwesomeIcon icon={faReply} className="text-gray-500 hover:text-red-500 cursor-pointer" onClick={handleReplyClick} />
           <FontAwesomeIcon icon={faStar} className="text-gray-500 hover:text-yellow-500 cursor-pointer" />
@@ -148,4 +172,3 @@ const Email: React.FC<EmailProps> = ({ indexKey, email, onToggle, threadId, onRe
 };
 
 export default Email;
-

@@ -124,7 +124,6 @@ const App: React.FC = () => {
   };
 
   const handleComposeModalOpen = () => {
-    console.log("reacher ere");
     setIsComposeModalOpen(true);
   };
   
